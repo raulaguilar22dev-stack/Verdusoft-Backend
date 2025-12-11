@@ -9,12 +9,6 @@ from supabase import create_client, Client
 from postgrest.exceptions import APIError
 import logging
 
-
-#########################################################prueba de respuesta################################################
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
-#################################################################################################################
-
 from schemas import (
     # Categoria
     Categoria,
@@ -72,10 +66,6 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
-
-##################################################prueba################################################
-app.mount("/static", StaticFiles(directory="static"), name="static")
-#######################################################################################################
 
 # Configurar CORS
 app.add_middleware(
@@ -951,13 +941,3 @@ def crear_venta(venta: VentaCreate):
     except Exception as e:
         logger.error(f"Error al crear venta: {str(e)}")
         raise HTTPException(status_code=400, detail=f"Error al crear venta: {str(e)}")
-
-
-@app.get("/tienda")
-def read_index():
-    return FileResponse("static/index.html")
-
-
-@app.get("/ventas")
-def read_ventas():
-    return FileResponse("static/historial_ventas.html")
