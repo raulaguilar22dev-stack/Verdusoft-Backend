@@ -1,0 +1,9 @@
+{
+  "include": ["."],
+  "exclude": ["env", "__pycache__"],
+  "venvPath": ".",
+  "venv": "env",
+  "extraPaths": ["."],
+  "pythonVersion": "3.13",
+  "pythonPlatform": "Linux"
+}
