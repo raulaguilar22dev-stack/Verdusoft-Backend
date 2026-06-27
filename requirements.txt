@@ -28,6 +28,7 @@ postgrest==2.22.1
 propcache==0.4.1
 pycparser==2.23
 pydantic==2.12.2
+pydantic-settings==2.9.1
 pydantic_core==2.41.4
 Pygments==2.19.2
 PyJWT==2.10.1

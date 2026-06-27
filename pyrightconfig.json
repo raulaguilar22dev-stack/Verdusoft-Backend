@@ -1,6 +1,6 @@
 {
   "include": ["."],
-  "exclude": ["env", "__pycache__"],
+  "exclude": ["env", "__pycache__", ".venv"],
   "venvPath": ".",
   "venv": "env",
   "extraPaths": ["."],
