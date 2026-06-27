@@ -14,9 +14,13 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 
 async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """Maneja excepciones no controladas."""
-    logger.error(f"Error no manejado: {str(exc)}")
+    """Maneja excepciones no controladas.
+
+    Nunca expone str(exc) al cliente para evitar filtrar
+    internals del sistema.
+    """
+    logger.error(f"Error no manejado en {request.url.path}: {exc!r}")
     return JSONResponse(
         status_code=500,
-        content={"mensaje": "Error interno del servidor", "detalles": str(exc)},
+        content={"mensaje": "Error interno del servidor"},
     )

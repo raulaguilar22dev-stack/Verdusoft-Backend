@@ -7,7 +7,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.dependencies import get_supabase_client
-from app.schemas import MensajeRespuesta, Producto, ProductoCreate, ProductoUpdate, ReporteStockBajo
+from app.schemas import MensajeRespuesta, Producto, ProductoCreate, ProductoUpdate, ProductoPublic, ReporteStockBajo
 from app.services import producto_service
 
 router = APIRouter(prefix="/api", tags=["Productos"])
@@ -38,6 +38,15 @@ def listar_productos(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error al obtener productos")
+
+
+@router.get("/productos/catalogo", response_model=List[ProductoPublic])
+def catalogo_productos(db=Depends(get_supabase_client)):
+    """Listado publico de productos (solo nombre y precio)."""
+    try:
+        return producto_service.catalogo(db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error al obtener catalogo")
 
 
 @router.get("/productos/stock-bajo", response_model=List[ReporteStockBajo])

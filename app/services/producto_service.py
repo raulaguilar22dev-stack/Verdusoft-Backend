@@ -1,4 +1,4 @@
-"""Servicio de lógica de negocio para Productos."""
+"""Servicio de logica de negocio para Productos."""
 
 from __future__ import annotations
 
@@ -36,45 +36,39 @@ def listar(
         query = query.eq("codigo", codigo)
     if activo is not None:
         query = query.eq("activo", activo)
+    if stock_bajo:
+        # Filtro via VIEW en base de datos
+        response = db.table("vw_stock_bajo").select("*").execute()
+        return response.data or []
 
     query = query.order("nombre").range(skip, skip + limit - 1)
     response = query.execute()
-    productos = response.data or []
+    return response.data or []
 
-    if stock_bajo:
-        productos = [
-            p for p in productos if p.get("stock", 0) <= p.get("stock_minimo", 0)
-        ]
-    return productos
+
+def catalogo(db: Client) -> list[dict]:
+    """Listado publico: solo activos con nombre y precio."""
+    response = (
+        db.table(TABLA)
+        .select("id_producto, nombre, precio_actual")
+        .eq("activo", True)
+        .order("nombre")
+        .execute()
+    )
+    return response.data or []
 
 
 def stock_bajo(db: Client) -> list[dict]:
-    """Obtener productos con stock bajo."""
-    response = (
-        db.table(TABLA)
-        .select("id_producto, nombre, codigo, stock, stock_minimo")
-        .eq("activo", True)
-        .execute()
-    )
-    productos_bajo_stock = []
-    for p in response.data or []:
-        if p["stock"] <= p["stock_minimo"]:
-            productos_bajo_stock.append(
-                {
-                    "id_producto": p["id_producto"],
-                    "nombre": p["nombre"],
-                    "codigo": p.get("codigo"),
-                    "stock_actual": p["stock"],
-                    "stock_minimo": p["stock_minimo"],
-                    "diferencia": p["stock_minimo"] - p["stock"],
-                }
-            )
-    return productos_bajo_stock
+    """Obtener productos con stock bajo via VIEW."""
+    response = db.table("vw_stock_bajo").select("*").execute()
+    return response.data or []
 
 
 def obtener(db: Client, id_producto: int) -> dict:
     """Obtener un producto por ID."""
-    response = db.table(TABLA).select("*, categoria(*)").eq("id_producto", id_producto).execute()
+    response = (
+        db.table(TABLA).select("*, categoria(*)").eq("id_producto", id_producto).execute()
+    )
     if not response.data:
         raise ValueError("Producto no encontrado")
     return response.data[0]
@@ -89,7 +83,7 @@ def crear(db: Client, producto: ProductoCreate) -> dict:
     except APIError as e:
         logger.error(f"Error al crear producto: {e}")
         if "duplicate" in str(e).lower():
-            raise ValueError("Ya existe un producto con ese código")
+            raise ValueError("Ya existe un producto con ese codigo")
         raise ValueError("Error al crear producto")
 
 

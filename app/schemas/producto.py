@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 from app.schemas.enums import UnidadMedidaEnum
 
@@ -50,14 +50,9 @@ class Producto(ProductoBase):
         from_attributes = True
 
 
-class ProductoConStock(Producto):
-    """Schema extendido con información de stock y alertas."""
+class ProductoPublic(BaseModel):
+    """Schema publico: solo nombre y precio."""
 
-    necesita_reposicion: bool = False
-
-    @field_validator("necesita_reposicion", mode="before")
-    @classmethod
-    def calcular_necesita_reposicion(cls, v, info):
-        stock = info.data.get("stock", 0)
-        stock_minimo = info.data.get("stock_minimo", 0)
-        return stock <= stock_minimo
+    id_producto: int
+    nombre: str
+    precio_actual: float

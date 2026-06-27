@@ -240,3 +240,40 @@ BEGIN
   RETURN jsonb_build_object('mensaje', 'Compra cancelada exitosamente');
 END;
 $$;
+
+
+-- -----------------------------------------------------------------------------
+-- 5. VISTA: Productos con stock bajo
+-- -----------------------------------------------------------------------------
+CREATE OR REPLACE VIEW vw_stock_bajo AS
+SELECT
+  id_producto,
+  nombre,
+  codigo,
+  stock AS stock_actual,
+  stock_minimo,
+  (stock_minimo - stock) AS diferencia
+FROM producto
+WHERE activo = TRUE AND stock <= stock_minimo;
+
+
+-- -----------------------------------------------------------------------------
+-- 6. FIX: Agregar fecha_actualizacion a producto
+-- -----------------------------------------------------------------------------
+ALTER TABLE producto ADD COLUMN IF NOT EXISTS fecha_actualizacion TIMESTAMPTZ DEFAULT NOW();
+
+CREATE OR REPLACE FUNCTION update_fecha_actualizacion()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.fecha_actualizacion = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_update_producto ON producto;
+CREATE TRIGGER trigger_update_producto
+BEFORE UPDATE ON producto
+FOR EACH ROW
+EXECUTE FUNCTION update_fecha_actualizacion();
+
+UPDATE producto SET fecha_actualizacion = fecha_creacion WHERE fecha_actualizacion IS NULL;
