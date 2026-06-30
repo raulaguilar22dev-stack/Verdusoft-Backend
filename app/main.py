@@ -2,13 +2,19 @@
 
 import logging
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
+from app.auth.dependencies import require_admin
 from app.exceptions import general_exception_handler, http_exception_handler
-from app.routers import categorias, clientes, compras, productos, proveedores, ventas
+from app.routers import auth, categorias, clientes, compras, productos, proveedores, ventas
 
 logging.basicConfig(level=logging.INFO)
+
+limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
     title="Sistema de Inventario API",
@@ -17,10 +23,15 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8080",
+        "https://verdusoft-front.onrender.com",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,12 +40,28 @@ app.add_middleware(
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
-app.include_router(categorias.router)
-app.include_router(proveedores.router)
-app.include_router(clientes.router)
+# Auth (publico: registro con master key)
+app.include_router(auth.router)
+
+# Productos: catalogo publico, el resto admin
 app.include_router(productos.router)
-app.include_router(compras.router)
-app.include_router(ventas.router)
+
+# Admin only
+app.include_router(
+    categorias.router, dependencies=[Depends(require_admin)]
+)
+app.include_router(
+    proveedores.router, dependencies=[Depends(require_admin)]
+)
+app.include_router(
+    clientes.router, dependencies=[Depends(require_admin)]
+)
+app.include_router(
+    compras.router, dependencies=[Depends(require_admin)]
+)
+app.include_router(
+    ventas.router, dependencies=[Depends(require_admin)]
+)
 
 
 @app.get("/")

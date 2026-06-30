@@ -6,11 +6,16 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.auth.dependencies import require_admin
 from app.dependencies import get_supabase_client
 from app.schemas import Categoria, CategoriaCreate, CategoriaUpdate, MensajeRespuesta
 from app.services import categoria_service
 
-router = APIRouter(prefix="/api", tags=["Categorías"])
+router = APIRouter(
+    prefix="/api",
+    tags=["Categorías"],
+    dependencies=[Depends(require_admin)],
+)
 
 
 @router.get("/categorias", response_model=List[Categoria])

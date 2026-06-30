@@ -7,11 +7,16 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.auth.dependencies import require_admin
 from app.dependencies import get_supabase_client
 from app.schemas import MensajeRespuesta, Venta, VentaCreate, VentaUpdate
 from app.services import venta_service
 
-router = APIRouter(prefix="/api", tags=["Ventas"])
+router = APIRouter(
+    prefix="/api",
+    tags=["Ventas"],
+    dependencies=[Depends(require_admin)],
+)
 
 
 @router.get("/ventas", response_model=List[Venta])

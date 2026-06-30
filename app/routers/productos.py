@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.auth.dependencies import require_admin
 from app.dependencies import get_supabase_client
 from app.schemas import MensajeRespuesta, Producto, ProductoCreate, ProductoUpdate, ProductoPublic, ReporteStockBajo
 from app.services import producto_service
@@ -23,6 +24,7 @@ def listar_productos(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     db=Depends(get_supabase_client),
+    _=Depends(require_admin),
 ):
     """Listar todos los productos con filtros."""
     try:
@@ -50,7 +52,10 @@ def catalogo_productos(db=Depends(get_supabase_client)):
 
 
 @router.get("/productos/stock-bajo", response_model=List[ReporteStockBajo])
-def productos_stock_bajo(db=Depends(get_supabase_client)):
+def productos_stock_bajo(
+    db=Depends(get_supabase_client),
+    _=Depends(require_admin),
+):
     """Obtener productos con stock bajo."""
     try:
         return producto_service.stock_bajo(db)
@@ -61,7 +66,11 @@ def productos_stock_bajo(db=Depends(get_supabase_client)):
 
 
 @router.get("/productos/{id_producto}", response_model=Producto)
-def obtener_producto(id_producto: int, db=Depends(get_supabase_client)):
+def obtener_producto(
+    id_producto: int,
+    db=Depends(get_supabase_client),
+    _=Depends(require_admin),
+):
     """Obtener un producto por ID."""
     try:
         return producto_service.obtener(db, id_producto)
@@ -76,7 +85,11 @@ def obtener_producto(id_producto: int, db=Depends(get_supabase_client)):
     response_model=Producto,
     status_code=status.HTTP_201_CREATED,
 )
-def crear_producto(producto: ProductoCreate, db=Depends(get_supabase_client)):
+def crear_producto(
+    producto: ProductoCreate,
+    db=Depends(get_supabase_client),
+    _=Depends(require_admin),
+):
     """Crear un nuevo producto."""
     try:
         return producto_service.crear(db, producto)
@@ -89,6 +102,7 @@ def actualizar_producto(
     id_producto: int,
     producto: ProductoUpdate,
     db=Depends(get_supabase_client),
+    _=Depends(require_admin),
 ):
     """Actualizar un producto."""
     try:
@@ -100,7 +114,11 @@ def actualizar_producto(
 
 
 @router.delete("/productos/{id_producto}", response_model=MensajeRespuesta)
-def eliminar_producto(id_producto: int, db=Depends(get_supabase_client)):
+def eliminar_producto(
+    id_producto: int,
+    db=Depends(get_supabase_client),
+    _=Depends(require_admin),
+):
     """Desactivar un producto."""
     try:
         return producto_service.eliminar(db, id_producto)

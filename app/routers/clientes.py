@@ -6,11 +6,16 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.auth.dependencies import require_admin
 from app.dependencies import get_supabase_client
 from app.schemas import Cliente, ClienteCreate, ClienteUpdate, MensajeRespuesta
 from app.services import cliente_service
 
-router = APIRouter(prefix="/api", tags=["Clientes"])
+router = APIRouter(
+    prefix="/api",
+    tags=["Clientes"],
+    dependencies=[Depends(require_admin)],
+)
 
 
 @router.get("/clientes", response_model=List[Cliente])

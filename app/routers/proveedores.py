@@ -6,11 +6,16 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.auth.dependencies import require_admin
 from app.dependencies import get_supabase_client
 from app.schemas import MensajeRespuesta, Proveedor, ProveedorCreate, ProveedorUpdate
 from app.services import proveedor_service
 
-router = APIRouter(prefix="/api", tags=["Proveedores"])
+router = APIRouter(
+    prefix="/api",
+    tags=["Proveedores"],
+    dependencies=[Depends(require_admin)],
+)
 
 
 @router.get("/proveedores", response_model=List[Proveedor])

@@ -7,11 +7,16 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.auth.dependencies import require_admin
 from app.dependencies import get_supabase_client
 from app.schemas import Compra, CompraCreate, CompraUpdate, MensajeRespuesta
 from app.services import compra_service
 
-router = APIRouter(prefix="/api", tags=["Compras"])
+router = APIRouter(
+    prefix="/api",
+    tags=["Compras"],
+    dependencies=[Depends(require_admin)],
+)
 
 
 @router.get("/compras", response_model=List[Compra])
