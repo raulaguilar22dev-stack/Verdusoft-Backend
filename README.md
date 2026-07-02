@@ -35,11 +35,13 @@ cp .env.example .env
 |----------|-------------|---------|
 | `SUPABASE_URL` | URL de tu proyecto Supabase | `https://abc123.supabase.co` |
 | `SUPABASE_KEY` | Service Role Key (secreta) | `eyJhbGciOiJIUzI1NiIs...` |
-| `SUPABASE_JWT_SECRET` | JWT Secret del proyecto | `ddZbwS+91/nvA9j6q54...` |
+| `SUPABASE_JWT_SECRET` | JWT Secret (para HS256 legacy) | `ddZbwS+91/nvA9j6q54...` |
+| `SUPABASE_PROJECT_REF` | Project ref de Supabase (para JWKS RS256) | `lscmcxxvayzdgwinpokx` |
 | `ADMIN_MASTER_KEY` | Clave maestra para registro de admin | `verdusoft-admin-2026` |
 
 > **IMPORTANTE**: El `SUPABASE_KEY` debe ser la **Service Role Key** (no el `anon key`).
 > El `SUPABASE_JWT_SECRET` se encuentra en: Supabase Dashboard > Project Settings > API > JWT Settings > JWT Secret.
+> El `SUPABASE_PROJECT_REF` es el ID de tu proyecto (la parte del subdominio antes de `.supabase.co`).
 
 ## Como correr
 
@@ -53,6 +55,8 @@ La API estara disponible en `http://localhost:8000`.
 ## Autenticacion
 
 El sistema usa **Supabase Auth** con JWT.
+
+> **Nota**: El backend soporta tanto tokens firmados con **RS256** (default en Supabase Auth v2) como **HS256** (legacy). Para RS256, obtiene automaticamente la clave publica desde el endpoint JWKS de Supabase.
 
 ### Roles
 

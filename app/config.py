@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_key: str
     supabase_jwt_secret: str
+    supabase_project_ref: str = "lscmcxxvayzdgwinpokx"
     admin_master_key: str = "verdusoft-admin-2026"
 
     class Config:

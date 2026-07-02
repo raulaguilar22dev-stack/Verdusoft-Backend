@@ -17,6 +17,7 @@ TEST_JWT_SECRET = "test-secret-very-long-and-secure-123456789"
 TEST_ADMIN_KEY = "master-key-de-test-2026"
 TEST_SUPABASE_URL = "https://test.supabase.co"
 TEST_SUPABASE_KEY = "test-service-role-key"
+TEST_PROJECT_REF = "lscmcxxvayzdgwinpokx"
 
 # -----------------------------------------------------------------------------
 # Mock Supabase Client
@@ -143,6 +144,7 @@ def mock_env(monkeypatch):
     monkeypatch.setenv("SUPABASE_KEY", TEST_SUPABASE_KEY)
     monkeypatch.setenv("SUPABASE_JWT_SECRET", TEST_JWT_SECRET)
     monkeypatch.setenv("ADMIN_MASTER_KEY", TEST_ADMIN_KEY)
+    monkeypatch.setenv("SUPABASE_PROJECT_REF", TEST_PROJECT_REF)
 
     # Parchear settings YA importada (import-time caching)
     from app import config as config_module
@@ -151,6 +153,7 @@ def mock_env(monkeypatch):
     monkeypatch.setattr(config_module.settings, "supabase_key", TEST_SUPABASE_KEY)
     monkeypatch.setattr(config_module.settings, "supabase_jwt_secret", TEST_JWT_SECRET)
     monkeypatch.setattr(config_module.settings, "admin_master_key", TEST_ADMIN_KEY)
+    monkeypatch.setattr(config_module.settings, "supabase_project_ref", TEST_PROJECT_REF)
 
 
 @pytest.fixture
