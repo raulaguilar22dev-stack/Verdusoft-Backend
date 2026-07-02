@@ -39,7 +39,7 @@ async def get_current_user(authorization: Optional[str] = Header(None)) -> dict:
             settings.supabase_jwt_secret,
             algorithms=[ALGORITHM],
             options={"verify_aud": False},
-            leeway=60,
+            leeway=300,
         )
     except jwt.ExpiredSignatureError:
         raise HTTPException(
