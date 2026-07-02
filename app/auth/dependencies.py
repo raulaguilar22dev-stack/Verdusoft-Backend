@@ -30,13 +30,13 @@ def _decode_token(token: str) -> dict:
     unverified_header = jwt.get_unverified_header(token)
     alg = unverified_header.get("alg", "RS256")
 
-    if alg == "RS256":
+    if alg in ("RS256", "ES256"):
         jwks_client = _get_jwks_client()
         signing_key = jwks_client.get_signing_key_from_jwt(token)
         return jwt.decode(
             token,
             signing_key.key,
-            algorithms=["RS256"],
+            algorithms=["RS256", "ES256"],
             options={"verify_aud": False},
             leeway=300,
         )
